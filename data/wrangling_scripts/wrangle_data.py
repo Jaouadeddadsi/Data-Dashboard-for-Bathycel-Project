@@ -1,7 +1,8 @@
 import pandas as pd
 import plotly.graph_objs as go
 
-# Use this file to read in your data and prepare the plotly visualizations. The path to the data files are in
+# Use this file to read in your data and prepare the plotly visualizations.
+# The path to the data files are in
 # `data/file_name.csv`
 
 
