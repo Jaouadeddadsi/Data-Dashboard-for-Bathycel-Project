@@ -3,7 +3,7 @@ import pandas as pd
 
 
 def ray_tracing(owt, theta_0, svp):
-    """ray tracing algorithm
+    """ ray tracing algorithm
 
     Args:
         None
@@ -88,3 +88,58 @@ def ray_tracing(owt, theta_0, svp):
                 dz = svp['profondeur'].iloc[i + 1] - svp['profondeur'].iloc[i]
                 g = (c1 - c0) / dz
     return x, z
+
+
+def newton_raphson(t, theta, c_z0, svp):
+    """ newton raphson algorithm
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    """
+
+    p = np.sin(theta) / c_z0  # parametre de snell
+    # calculer Cmean
+    idx = (np.abs(svp['vitesse'].values-c_z0)).argmin()
+    c0 = svp['c_h_m'].iloc[idx]
+    z1 = t*c0*np.sqrt(1-((p**2)*(c0**2)))  # ajouter z0
+    # premier iteration
+    idx = (np.abs(svp['profondeur'].values-z1)).argmin()
+    c = svp['c_h_m'].iloc[idx]
+    z2 = t*c*np.sqrt(1-((p**2)*(c**2)))
+    x = p*t*(c**2)
+    i = 0
+    eps = 1.e-2
+    while np.abs(z2-z1) > eps:
+        # for k in range(3):
+        z1 = z2
+        idx = (np.abs(svp['profondeur'].values-z1)).argmin()
+        c = svp['c_h_m'].iloc[idx]
+        z2 = t*c*np.sqrt(1-((p**2)*(c**2)))
+        x = p*t*(c**2)
+        i += 1
+    return x, z2
+
+
+def mean_celirity(z, z0, svp):
+    """ compute mean harminic velocity
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    """
+
+    svp = svp[(svp['profondeur'] >= z0) & (svp['profondeur'] <= z)]
+    z = svp['profondeur'].values
+    c = svp['vitesse'].values[1:]
+    dz = np.diff(svp['profondeur'].values)
+    a = 1/(z[-1] - z[0])
+    b = dz/c
+    d = np.sum(b)
+    return 1/(a*d)
